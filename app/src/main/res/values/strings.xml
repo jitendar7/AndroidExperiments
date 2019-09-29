@@ -2,4 +2,6 @@
     <string name="app_name">AndroidExperiments</string>
     <string name="hello_world">Hello World!</string>
     <string name="roll_label">Roll</string>
+    <string name="name">Aleks Haecky</string>
+    <string name="yellow_star">Yellow Star</string>
 </resources>
