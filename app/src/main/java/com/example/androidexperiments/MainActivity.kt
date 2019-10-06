@@ -19,11 +19,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_second)
         binding.myName = myName
 
-        val rollButton = findViewById<Button>(R.id.btn_roll)
-        diceImage = findViewById(R.id.dice_image)
+//        val rollButton = findViewById<Button>(R.id.btn_roll)
+//        diceImage = findViewById(R.id.dice_image)
         binding.doneButton.setOnClickListener {
             addNickName(it)
         }
@@ -32,9 +32,9 @@ class MainActivity : AppCompatActivity() {
             updateNickname(it)
         }
 
-        rollButton.setOnClickListener {
-            rollDice()
-        }
+        //rollButton.setOnClickListener {
+        //    rollDice()
+        //}
     }
 
     private fun rollDice() {
@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateNickname(view: View) {
 
         binding.apply {
-            myName?.nickname = nicknameEdit.text.toString()
+            myName?.nickName = nicknameEdit.text.toString()
             nicknameEdit.visibility = View.GONE
             doneButton.visibility = View.GONE
             nicknameText.visibility = View.VISIBLE

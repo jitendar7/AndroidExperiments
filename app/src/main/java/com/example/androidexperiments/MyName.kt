@@ -9,4 +9,4 @@ package com.example.androidexperiments
  * Copyright: ADIB (2019-2020)
  */
 
-data class MyName(var name: String = "", var nickname: String = "")
+data class MyName(var name: String = "", var nickName: String = "")
