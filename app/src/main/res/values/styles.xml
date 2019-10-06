@@ -15,8 +15,8 @@
         <item name="android:textSize">@dimen/text_size</item>
     </style>
 
-    <style name="whiteBox">
-        <item name="android:background">@android:color/holo_green_light</item>
+    <style name="WhiteBox">
+        <item name="android:background">@android:color/white</item>
         <item name="android:textAlignment">center</item>
         <item name="android:textSize">@dimen/box_text_size</item>
         <item name="android:textStyle">bold</item>
