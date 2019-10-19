@@ -8,6 +8,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.example.androidexperiments.databinding.ActivitySecondBinding
+import timber.log.Timber
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -19,6 +20,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Timber.i("onCreate called")
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_second)
         binding.myName = myName
 
