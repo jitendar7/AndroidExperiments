@@ -8,6 +8,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.example.androidexperiments.databinding.ActivitySecondBinding
+import com.example.lifecycle.LifeCycleTimer
 import timber.log.Timber
 import java.util.*
 
@@ -21,6 +22,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.i("onCreate called")
+
+        //listen to lifecycle events
+        LifeCycleTimer(this.lifecycle)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_second)
         binding.myName = myName
