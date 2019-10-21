@@ -10,12 +10,12 @@ class LifeCycleTimer(lifeCycle: Lifecycle): LifecycleObserver{
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun startTimer(){
+    fun startTimer() {
 
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    fun stopTimer(){
+    fun stopTimer() {
 
     }
 }
