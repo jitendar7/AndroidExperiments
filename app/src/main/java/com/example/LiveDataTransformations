@@ -1,0 +1,27 @@
+// In ViewModel, create a backing property of MutableLiveData like this
+
+
+private val_currentTime = MutableLiveData<Long>()
+val currentTime: LiveData<Long>
+    get() = _currentTime
+
+
+
+//Transformations:
+
+Transformations.map() provides a way to perform data manipulations on the source LiveData &
+return a LiveData object
+
+Transformations.map() is executed on main thread, do not include long running tasks
+
+
+
+eg:
+--
+
+currentTime => LiveData
+currentTimeString => LiveData
+
+val currentTimeString = Transformations.map(currentTime) { time ->
+    DateUtils.formatElapsedTime(time)
+}
