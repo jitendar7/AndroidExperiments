@@ -1,0 +1,39 @@
+// How to add value into strings.xml , from viewmodel
+
+
+First you have to set the viewmodel in Activity/Fragment using below
+
+binding.gameViewModel = viewModel
+
+
+
+In strings.xml
+
+<string name="score_format">Current Score: %d</string>
+
+
+In Layout.xml
+
+
+
+<layout.. >
+
+  <data>
+    <variable
+        name="gameViewModel"
+        type="packagename.className"
+     />
+
+  </data>
+
+
+
+<TextView
+    android:id="@+id/score_text"
+    ..
+    android:text="@{@string/score_format(gameViewModel.score)}"     // Note the 'gameViewmodel' name mentioned in the data-variable
+    .. />
+
+
+</layout>
+
