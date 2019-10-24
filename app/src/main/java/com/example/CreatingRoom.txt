@@ -1,0 +1,145 @@
+//Entity
+  It represents an object or concept, and its properties, to store in the database
+  An Entity class defines a 'Table'
+     and each instance of the class defines a 'Row' in the table
+     and each property defines a 'Column'
+
+
+//Query
+  It is a request for data or information from a database table or combination of tables
+
+Define each Entity as Annotated data class, and "interactions" as an annotated interface, a DAO
+
+  RoomDatabase:
+
+    Entity => DAO => Sqlite
+
+
+
+Eg:
+
+Creating an Entity:
+
+
+@Entity(tableName = "daily_sleep_table")
+data class SleepNight(
+
+    @PrimaryKey(autoGenerate = true)
+    var nightId: Long = 0L
+
+    @ColumnInfo(name = "start_time_millis")
+    val startTimeMills: Long = System.currentTimeMillis()
+
+}
+
+
+
+Creating a DAO:
+
+
+@Dao
+interface SleepDataBaseDAO{
+
+    @Insert
+    fun insert(night: SleepNight)
+
+    @Update
+    fun update(night: SleepNight)
+
+    @Query("SELECT * FROM daily_sleep_table WHERE nightId = :key"
+    fun get(key: Long): SleepNight?
+
+    @Query("DELETE FROM daily_sleep_table")
+    fun clear()
+
+
+    @Query("SELECT * FROM daily_sleep_table ORDER BY nightId DESC LIMIT 1")
+    fun getTonight(): SleepNight?
+
+
+    @Query("SELECT * FROM daily_sleep_table ORDER BY nightId DESC")
+    fun getAllNights(): LiveData<List<SleepNight>>                          >>> ROOM keeps the LiveData updated for you
+
+}
+
+
+Creating a Room Database:
+
+    1. Create a 'public abstract' class that extends RoomDatabase. This acts as a database holder.
+       The class is abstract, because 'Room' creates implementation for you
+
+    2. Annotate the class with @Database. Declare the Entities for the database and set the version number
+
+    3. Inside a 'companion' object define an abstract method or property that returns a SleepDatabaseDao.
+        Room will generate body for you.
+
+    4. You only need 1 instance of the 'Room' database for the whole app, so make the 'RoomDatabase'
+       a singleton
+
+    5. Use Room's database builder to create the database only if the database doesn't exist, otherwise return
+       the existing database
+
+
+
+
+    @Database(entities = [SleepNight::class], version=1, exportSchema = false)
+    public abstract class SleepDatabase: RoomDatabase(){
+
+        abstract val sleepDatabaseDao: SleepDatabaseDao
+
+
+        companion object {      // declare a private nullable variable 'INSTANCE' for the database
+
+                          // the value of volatile will never be cached, all writes & reads will be done to and from
+             @Volatile    // main memory & changes made by one thread to INSTANCE are visible to all other threads immediately
+             private var INSTANCE: SleepDatabase? = null
+
+
+             fun getInstance(context: Context): SleepDatabase {
+
+                    synchronize(this) {
+                        var instance = INSTANCE
+
+                        if(instance == null){
+                            instance = Room.databaseBuilder(context.applicationContext,
+                                            SleepDatabase::class.java, "sleep_history_database")
+                                            .fallbackToDestructiveMigration()       // this indicates destroy & rebuild the database
+                                            .build()
+                        }
+
+                        INSTANCE = instance
+
+                        }
+
+                        return instance
+
+                }
+
+             }
+
+         }
+
+    }
+
+
+
+Testing the SleepDatabase
+
+ Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-apps/blob/master/TrackMySleepQualityRoomAndTesting/app/src/androidTest/java/com/example/android/trackmysleepquality/SleepDatabaseTest.kt
+
+
+    val context = InstrumentationRegistry.getInstrumentation().targetContext
+
+        // Using an in-memory database because the information stored here disappears when the process is killed
+
+        db = Room.inMemoryDatabaseBuilder(context, SleepDatabase::class.java)
+                // Allowing main thread queries, just for testing
+
+             .allowMainThreadQueries()
+             .build()
+
+        sleepDao = db.sleepDatabaseDao
+
+
+
+
