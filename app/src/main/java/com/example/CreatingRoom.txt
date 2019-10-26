@@ -122,7 +122,6 @@ Creating a Room Database:
     }
 
 
-
 Testing the SleepDatabase
 
  Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-apps/blob/master/TrackMySleepQualityRoomAndTesting/app/src/androidTest/java/com/example/android/trackmysleepquality/SleepDatabaseTest.kt

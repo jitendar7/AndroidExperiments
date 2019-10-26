@@ -1,0 +1,73 @@
+// Getting an 'application' instance in fragment
+
+requireNotNull(this.activity).application
+
+
+//In the fragment, set the current activity as the lifecycle owner of the binding.
+
+binding.setLifeCycleOwner(this)
+
+//To use coroutines, include the dependencies
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
+implementaiton "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutine_version"
+
+
+//create a Job
+private var viewModelJob = Job()
+
+
+//cancel all Jobs in 'onCleared'
+override fun onCleared(){
+    super.onCleared()
+    viewModelJob.cancel()
+}
+
+
+// scope defines the 'context' in which the coroutine runs , scope keeps track of coroutines,
+// when u launch a coroutine, its 'in a scope', which means that you've indicated which scope will
+// keep track of the coroutine
+
+// create a 'coroutine-scope' (scope => Dispatcher + job)
+
+private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+
+
+uiScope.launch{
+    tonight.value = getTonightFromDatabase()
+}
+
+private suspend fun getTonightFromDatabase(): SleepNight? {     //suspend function
+
+    return withContext(Dispatchers.IO) {     //since getting data from database is IO operation
+        var night = database.getTonight()
+           if (night?.endTimeMilli != night?.startTimeMilli) {
+               night = null
+           }
+           night
+    }
+}
+
+
+// Steps are as below
+
+1. Launch a coroutine that runs on the main or UI thread, because the results affects the UI.
+2. Call a suspend function to do the long-running work, so that you don't block the UI thread while
+   waiting for the result
+3. The long-running work has nothing to do with the UI. Switch to the I/O context, so that the work
+    can run in a thread pool that's optimized and set aside for these kinds of operations.
+4. Then call the database function to do the work
+
+
+fun someWorkNeedsToBeDone {
+   uiScope.launch {
+        suspendFunction()
+   }
+}
+
+suspend fun suspendFunction() {
+
+   withContext(Dispatchers.IO) {
+       longrunningWork()
+   }
+
+}
