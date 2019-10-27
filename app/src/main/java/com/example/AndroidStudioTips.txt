@@ -36,8 +36,10 @@ binding.button
 @Composable
 @Preview
 
-
 //Emulator inside the IDE
+// Converting layout to 'motion layout' and animate
 
 
-
+//Android Live Templates
+logt + Tab =>
+logm + Tab =>
