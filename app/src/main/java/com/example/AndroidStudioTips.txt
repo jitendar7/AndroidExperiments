@@ -1,0 +1,43 @@
+// To make sure we don't pass wrong argument to method , use annotation's -> error detected in compilation
+@ColorRes, @IdRes, @DrawableRes ...
+
+// In LayoutEditor, to preview the layout, we can use
+ tools:visibility, tools:text , ...
+
+
+//Android Studio 4.0
+Kotlin Gradle integration DSL
+
+compileOptions{
+    coreLibraryDesugaringEnabled 'true' => backport library for api, like streams,util.Function,... associated to library module
+}
+
+
+//Working with viewBinding
+
+with
+viewBinding{
+ isEnabled = true
+}
+
+we can access the binding as below
+
+private lateinit var binding: ActivityMainBinding
+
+binding = ActivityMainBinding.inflate(layoutinflater)
+
+binding.text
+binding.button
+...
+
+
+//JetpackCompose
+
+@Composable
+@Preview
+
+
+//Emulator inside the IDE
+
+
+
