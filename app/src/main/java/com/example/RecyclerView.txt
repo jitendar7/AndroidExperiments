@@ -1,0 +1,10 @@
+// To display data in RecyclerView, below are the things required
+
+1. Data to display
+2. 'RecyclerView' instance defined in layout file, which act as a container for the views
+3. A 'layout' for 1 item of data ( or more depending on usecases)
+4. A 'layout manager', handles the organization of the UI components in a view
+5. 'viewHolder' which extends ViewHolder class, It contains the view information for displaying
+one item from the item's layout
+6. Adapter connects data to RecyclerView. It adapts the data, so it can be displayed in a ViewHolder
+   A Recyclerview uses the adapter to figure out how to display the data on the screen
