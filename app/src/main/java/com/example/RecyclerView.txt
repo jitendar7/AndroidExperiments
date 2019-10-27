@@ -8,3 +8,79 @@
 one item from the item's layout
 6. Adapter connects data to RecyclerView. It adapts the data, so it can be displayed in a ViewHolder
    A Recyclerview uses the adapter to figure out how to display the data on the screen
+
+//recyclerview
+
+implementation 'androidx.recyclerview:recyclerview:1.0.0'
+
+
+<androidx.recyclerview.widget.RecyclerView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+//item_view
+
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:textSize="24sp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" />
+
+//creating viewholder
+class TextItemViewHolder(val textView: TextView): RecyclerView.ViewHolder(textView)
+
+
+//creating adapter
+class SleepNightAdapter: RecyclerView.Adapter<TextItemViewHolder>() {
+
+    var data = listOf<SleepNight>()
+        set(value){
+            field =  value
+            notifyDataSetChanged()
+        }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int){
+        val item = data[position]
+        holder.bind(item)
+    }
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder{
+        return ViewHolder.from(parent)
+    }
+
+    class ViewHolder private constructor(itemView: View): RecyclerView.ViewHolder(itemView){
+        val sleepLength: TextView = itemView.findViewById(R.id.sleep_length)
+        val quality: TextView = itemView.findViewById(R.id.quality_string)
+        ...
+
+        fun bind(item: SleepNight){
+            val res = itemView.context.resources
+            sleepLength.text = convertDurationToFormatted(item.startTimeMilli, item.endTimeMilli, res)
+            ...
+        }
+
+        companion object {
+            fun from(parent: ViewGroup): ViewHolder{
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val view = layoutInflater
+                            .inflate(R.layout.list_item_sleep_night,parent,false)
+                return ViewHolder(view)
+            }
+        }
+    }
+
+}
+
+
+//attaching adapter to recyclerview
+
+val adapter = SleepNightAdapter()
+binding.sleepList.adapter = adapter
+
+
+//binding can observe LiveData updates, in current activity
+binding.setLifeCycleOwner(this)
