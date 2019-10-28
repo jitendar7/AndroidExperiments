@@ -125,9 +125,9 @@ class SleepNightAdapter: ListAdapter<SleepNight, SleepNightAdapter.ViewHolder>(S
 //ListAdapter provided a method  'submitList()' to tell ListAdapter that a new version of the list is available
 
   sleepTrackerViewModel.nights.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                adapter.submitList(it)
-            }
+        it?.let {
+            adapter.submitList(it)
+        }
   })
 
 
