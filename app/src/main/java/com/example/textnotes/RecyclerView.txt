@@ -130,3 +130,20 @@ class SleepNightAdapter: ListAdapter<SleepNight, SleepNightAdapter.ViewHolder>(S
             }
   })
 
+
+// DataBinding with RecyclerView
+class ViewHolder private constructor(val binding: ListItemSleepNightBinding) : RecyclerView.ViewHolder(binding.root){
+
+    fun bind(item: SleepNight) {
+            binding.sleep = item
+            binding.executePendingBindings()
+     }
+
+    companion object {
+            fun from(parent: ViewGroup): ViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = ListItemSleepNightBinding.inflate(layoutInflater, parent, false)
+                return ViewHolder(binding)
+            }
+        }
+}
