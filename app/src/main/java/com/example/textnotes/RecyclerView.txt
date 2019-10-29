@@ -125,8 +125,25 @@ class SleepNightAdapter: ListAdapter<SleepNight, SleepNightAdapter.ViewHolder>(S
 //ListAdapter provided a method  'submitList()' to tell ListAdapter that a new version of the list is available
 
   sleepTrackerViewModel.nights.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                adapter.submitList(it)
-            }
+        it?.let {
+            adapter.submitList(it)
+        }
   })
 
+
+// DataBinding with RecyclerView
+class ViewHolder private constructor(val binding: ListItemSleepNightBinding) : RecyclerView.ViewHolder(binding.root){
+
+    fun bind(item: SleepNight) {
+            binding.sleep = item
+            binding.executePendingBindings()
+     }
+
+    companion object {
+            fun from(parent: ViewGroup): ViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = ListItemSleepNightBinding.inflate(layoutInflater, parent, false)
+                return ViewHolder(binding)
+            }
+        }
+}
