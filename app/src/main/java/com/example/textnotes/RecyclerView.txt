@@ -136,7 +136,7 @@ class ViewHolder private constructor(val binding: ListItemSleepNightBinding) : R
 
     fun bind(item: SleepNight) {
             binding.sleep = item
-            binding.executePendingBindings()
+            binding.executePendingBindings()    // for @BindingAdapter calls
      }
 
     companion object {
@@ -147,3 +147,22 @@ class ViewHolder private constructor(val binding: ListItemSleepNightBinding) : R
             }
         }
 }
+
+//Binding Adapters are adapters that take your data and adapt it into something that data binding can use to bind a view,
+// using @BindingAdapter , take an item & a view ( can be extension function instead )
+
+@BindingAdapter("sleepDurationFormatted")
+fun TextView.setSleepQualityString(item: SleepNight){
+    text = convert(item.sleepQuality, context.resources)
+}
+
+@BindingAdapter("sleepImage")
+fun ImageView.setSleepImage(item: SleepNight){
+    setImageResource()
+}
+
+
+app:sleepImage="@{sleep}"
+app:sleepQualityString="@{sleep}"
+app:sleepDurationFormatted="@{sleep}"
+
