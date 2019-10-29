@@ -43,3 +43,6 @@ binding.button
 //Android Live Templates
 logt + Tab =>
 logm + Tab =>
+
+
+// Motion Editor for layout files
