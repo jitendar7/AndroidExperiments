@@ -166,3 +166,23 @@ app:sleepImage="@{sleep}"
 app:sleepQualityString="@{sleep}"
 app:sleepDurationFormatted="@{sleep}"
 
+
+//LayoutManager
+app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+
+1 span = width of 1 column
+
+
+The GridLayoutManager constructor takes up to four arguments: a context,
+which is the activity, the number spans (columns, in the default vertical layout),
+an orientation (default is vertical), and whether it's a reverse layout (default is false)
+
+val manager = GridLayoutManager(activity, 3)    // default vertical layout
+
+val manager = GridLayoutManager(activity, 5, GridLayoutManager.HORIZONTAL, false)
+
+
+//sleepList=> recyclerview
+binding.sleepList.layoutManager = manager
+
+
