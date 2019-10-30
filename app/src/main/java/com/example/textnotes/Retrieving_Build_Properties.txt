@@ -1,0 +1,5 @@
+// Getting version name & version code from build.gradle file
+
+        applicationContext.packageManager.getPackageInfo(applicationContext.packageName,0).versionName
+        applicationContext.packageManager.getPackageInfo(applicationContext.packageName,0).versionCode
+
