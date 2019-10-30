@@ -216,5 +216,3 @@ In layout, add
         type="com.example.android.trackmysleepquality.sleeptracker.SleepNightListener" />
 
 android:onClick="@{() -> clickListener.onClick(sleep)}"
-
-
