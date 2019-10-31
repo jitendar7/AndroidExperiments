@@ -194,6 +194,36 @@ sealed class DataItem {
     data class SleepNightItem(val sleepNight: SleepNight): DataItem() {
         override val id = sleepNight.nightId
     }
+//Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-apps/blob/master/RecyclerViewClickHandler/app/src/main/java/com/example/android/trackmysleepquality/sleeptracker/SleepNightAdapter.kt
+//Adding click listener for recycleritem ( clickListener variable )
+class SleepNightAdapter(val clickListener: SleepNightListener) : ListAdapter<SleepNight, SleepNightAdapter.ViewHolder>(SleepNightDiffCallback()) {
+
+override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(getItem(position)!!, clickListener)
+
+...
+}
+
+//create a listener class in adapter
+class SleepNightListener(val clickListener: (sleepId: Long) -> Unit) {
+    fun onClick(night: SleepNight) = clickListener(night.nightId)
+}
+
+val adapter = SleepNightAdapter(SleepNightListener { nightId ->
+   Toast.makeText(context, "${nightId}", Toast.LENGTH_LONG).show()
+})
+
+<variable
+    name="sleep"
+    type="com.example.android.trackmysleepquality.database.SleepNight"/>
+
+In layout, add
+
+<variable
+        name="clickListener"
+        type="com.example.android.trackmysleepquality.sleeptracker.SleepNightListener" />
+
+android:onClick="@{() -> clickListener.onClick(sleep)}"
 
     object Header: DataItem() {         // there will only be one instance of header
         override val id = Long.MIN_VALUE
