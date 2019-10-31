@@ -186,3 +186,51 @@ val manager = GridLayoutManager(activity, 5, GridLayoutManager.HORIZONTAL, false
 binding.sleepList.layoutManager = manager
 
 
+Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-apps/blob/master/RecyclerViewHeaders/app/src/main/java/com/example/android/trackmysleepquality/sleeptracker/SleepNightAdapter.kt
+Adding Headers in RecyclerView
+using sealed class
+
+sealed class DataItem {
+    data class SleepNightItem(val sleepNight: SleepNight): DataItem() {
+        override val id = sleepNight.nightId
+    }
+
+    object Header: DataItem() {         // there will only be one instance of header
+        override val id = Long.MIN_VALUE
+    }
+
+    abstract val id: Long
+}
+
+create viewHolder for the header
+
+class TextViewHolder(view: View): RecyclerView.ViewHolder(view) {
+        companion object {
+            fun from(parent: ViewGroup): TextViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val view = layoutInflater.inflate(R.layout.header, parent, false)
+                return TextViewHolder(view)
+            }
+        }
+    }
+
+
+getItemType, returning right header
+
+override fun getItemViewType(position: Int): Int {
+        return when (getItem(position)) {
+            is DataItem.Header -> ITEM_VIEW_TYPE_HEADER
+            is DataItem.SleepNightItem -> ITEM_VIEW_TYPE_ITEM
+        }
+    }
+
+// defining coroutine scope with 'Dispatchers.Default' for adding new list to adapter
+
+//managing the span for header
+val manager = GridLayoutManager(activity, 3)
+        manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int) =  when (position) {
+                0 -> 3
+                else -> 1
+            }
+        }
