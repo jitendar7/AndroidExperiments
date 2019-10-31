@@ -1,0 +1,5 @@
+
+//Avoid glitch for scrolling, when the recyclerview is embedded in SwipeToRefresh
+
+recyclerView.setNestedScrollingEnabled(false);
+

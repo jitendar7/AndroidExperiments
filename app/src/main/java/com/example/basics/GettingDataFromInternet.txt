@@ -1,0 +1,30 @@
+//connect to a web service with retrofit
+
+implementation "com.squareup.retrofit2:retrofit:$version_retrofit"
+implementation "com.squareup.retrofit2:converter-scalars:$version_retrofit"
+
+
+// create a Retrofit builder to create a Retrofit object
+
+private val retrofit = Retrofit.Builder()
+                       .addConverterFactory(ScalarsConverterFactory.create())
+                       .baseUrl(BASE_URL)
+                       .build()
+
+//ScalarsConverter -> supports strings & other primitive types
+
+Define an interface that defines how Retrofit interacts to the web server using HTTP requests.
+
+interface MarsApiService{
+    @GET("realestate")                  // will get appended to the BASE_URL
+    fun getProperties(): Call<String>
+}
+
+
+// Initialize the retrofit service
+
+object MarsApi{
+    val retrofitService: MarsApiService by lazy {
+        retrofit.create(MarsApiService::class.java)
+    }
+}
