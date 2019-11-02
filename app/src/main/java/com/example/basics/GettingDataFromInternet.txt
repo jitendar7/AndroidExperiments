@@ -28,3 +28,19 @@ object MarsApi{
         retrofit.create(MarsApiService::class.java)
     }
 }
+
+//calling the retrofit service in viewmodel:
+
+MarsApi.retrofitService.getProperties().enqueue{    // starts the network request on a background thread
+    object: Callback<String> {
+        //implement
+        override fun onFailure(call: Call<String>, t: Throwable) {
+        }
+
+        override fun onResponse(call: Call<String>, response: Response<String>) {
+        }
+    }
+}
+
+Declare this in the manifest file
+<uses-permission android:name="android.permission.INTERNET" />
