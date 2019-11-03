@@ -249,6 +249,37 @@ fun bindStatus(statusImageView: ImageView,
  app:marsApiStatus="@{viewModel.status}"
 
 
+// Filtering & detail views with internet data
+
+
+https://android-kotlin-fun-mars-server.appspot.com/realestate?filter=buy
+
+update the API:
+
+enum class MarsApiFilter(val value: String) {
+   SHOW_RENT("rent"),
+   SHOW_BUY("buy"),
+   SHOW_ALL("all") }
+
+// adding Query parameter to the service
+fun getProperties(@Query("filter") type: String){
+ ...
+}
+
+//Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-apps/tree/master/MarsRealEstateFinal
+
+//Making the 'MarsProperty' parcelable
+'Parcelable' interface enables objects to be serialized, so that the objects data can be passed around
+between fragments or activities
+
+@Parcelize
+data class MarsProperty (
+       val id: String,
+       @Json(name = "img_src") val imgSrcUrl: String,
+       val type: String,
+       val price: Double) : Parcelable {
+
+       }
 
 
 
