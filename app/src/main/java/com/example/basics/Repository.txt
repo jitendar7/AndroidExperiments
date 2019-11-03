@@ -15,7 +15,7 @@ JSON:
 
 
 /**
- * Videos represent a devbyte that can be played.
+ * Videos represent a devbyte that can be played
  */
 @JsonClass(generateAdapter = true)
 data class NetworkVideo(
@@ -44,3 +44,90 @@ fun NetworkVideoContainer.asDomainModel(): List<DevByteVideo> {
 //Caching technique,
 Room -> used for complex & structured data storage
 Retrofit library -> solution for simple requests & responses, infrequent network calls, or small datasets
+
+//Fetch the data from network, put the data in Room, and display the data
+Create a database entity, DTO, both from response <-> entity , by creating extensions
+/**
+* Convert Network results to database objects
+*/
+fun NetworkVideoContainer.asDatabaseModel(): List<DatabaseVideo> {
+   return videos.map {
+       DatabaseVideo(
+               title = it.title,
+               description = it.description,
+               url = it.url,
+               updated = it.updated,
+               thumbnail = it.thumbnail)
+   }
+}
+
+//create DAO
+@Dao
+interface VideoDao {
+    @Query("select * from databasevideo")
+   fun getVideos(): LiveData<List<DatabaseVideo>>
+
+   @Insert(onConflict = OnConflictStrategy.REPLACE)
+   fun insertAll( videos: List<DatabaseVideo>)
+}
+
+//Implement Room Database
+@Database(entities = [DatabaseVideo::class], version = 1)
+abstract class VideosDatabase: RoomDatabase() {
+   abstract val videoDao: VideoDao
+}
+...
+
+
+Repository pattern:
+( Repository class isolates the data sources from rest of the app & provides a clean API for
+data access to the rest of the app )
+
+Model + Room
+Remote Data Source + Retrofit
+
+
+//Creating Repository
+class VideosRepository(private val database: VideosDatabase) {
+
+    // retrieve the data from database
+    val videos: LiveData<List<DevByteVideo>> = Transformations.map(database.videoDao.getVideos()) {
+        it.asDomainModel()
+    }
+
+    suspend fun refreshVideos() {       //Refresh the videos stored in offline cache
+       withContext(Dispatchers.IO) {
+            val playlist = DevByteNetwork.devbytes.getPlaylist().await()    // network call
+            database.videoDao.insertAll(playlist.asDatabaseModel())     // insert the data to ROOM database
+       }
+    }
+}
+
+Adding the repository to viewmodel
+private val videosRepository = VideosRepository(getDatabase(application))
+val playlist = videosRepository.videos
+
+init {
+   refreshDataFromRepository()
+}
+
+
+private fun refreshDataFromRepository(){
+    viewModelScope.launch{
+        try{
+            videosRepository.refreshVideos()
+           _eventNetworkError.value = false
+           _isNetworkErrorShown.value = false
+        } catch(networkError: IOException){
+            if(playlist.value!!.isEmpty())
+               _eventNetworkError.value = true
+        }
+    }
+
+}
+
+
+
+
+
+
