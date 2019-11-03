@@ -1,0 +1,46 @@
+//'Room' database to create an offline cache
+
+DTO ( Data Transfer Object)
+
+Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-starter-apps/blob/master/DevBytes-starter/app/src/main/java/com/example/android/devbyteviewer/network/DataTransferObjects.kt
+Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-apps/blob/master/DevBytesRepository/app/src/main/java/com/example/android/devbyteviewer/viewmodels/DevByteViewModel.kt
+
+JSON:
+ * {
+ *   "videos": []
+ * }
+
+ @JsonClass(generateAdapter = true)
+ data class NetworkVideoContainer(val videos: List<NetworkVideo>)
+
+
+/**
+ * Videos represent a devbyte that can be played.
+ */
+@JsonClass(generateAdapter = true)
+data class NetworkVideo(
+        val title: String,
+        val description: String,
+        val url: String,
+        val updated: String,
+        val thumbnail: String,
+        val closedCaptions: String?)
+
+/**
+ * Convert Network results to database objects
+ */
+fun NetworkVideoContainer.asDomainModel(): List<DevByteVideo> {
+    return videos.map {
+        DevByteVideo(
+                title = it.title,
+                description = it.description,
+                url = it.url,
+                updated = it.updated,
+                thumbnail = it.thumbnail)
+    }
+}
+
+
+//Caching technique,
+Room -> used for complex & structured data storage
+Retrofit library -> solution for simple requests & responses, infrequent network calls, or small datasets
