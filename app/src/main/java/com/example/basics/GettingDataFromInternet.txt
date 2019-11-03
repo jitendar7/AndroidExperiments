@@ -44,3 +44,213 @@ MarsApi.retrofitService.getProperties().enqueue{    // starts the network reques
 
 Declare this in the manifest file
 <uses-permission android:name="android.permission.INTERNET" />
+
+
+// Moshi, Android JSON Parser, converts json to Kotlin objects
+
+implementation "com.squareup.moshi:moshi:$version_moshi"
+implementation "com.squareup.moshi:moshi-kotlin:$version_moshi"
+
+implementation "com.squareup.retrofit2:converter-moshi:$version_retrofit"
+
+data class
+@Json(name = "img_src") val imgSrcUrl: String,
+..
+
+//create Moshi builder
+private val moshi = Moshi.Builder()
+   .add(KotlinJsonAdapterFactory())
+   .build()
+
+//attach it to the retrofit
+private val retrofit = Retrofit.Builder()
+   .addConverterFactory(MoshiConverterFactory.create(moshi))
+   .baseUrl(BASE_URL)
+   .build()
+
+//update the service to return the "data model"
+interface MarsApiService {
+   @GET("realestate")
+   fun getProperties():
+      Call<List<MarsProperty>>
+}
+
+//change the argument to enqueu()
+MarsApi.retrofitService.getProperties().enqueue(
+   object: Callback<List<MarsProperty>> {
+    override fun onFailure(call: Call<List<MarsProperty>>, t: Throwable) {
+    }
+
+    override fun onResponse(call: Call<List<MarsProperty>>,
+       response: Response<List<MarsProperty>>) {
+    _response.value =
+        "Success: ${response.body()?.size} Mars properties retrieved"
+        }
+ }
+
+ //Adding retrofit coroutine library
+ implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:$version_retrofit_coroutines_adapter"
+
+//Update Retrofit to use "CoroutineCallAdapterFactory"
+private val retrofit = Retrofit.Builder()
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .addCallAdapterFactory(CoroutineCallAdapterFactory())       // <<--
+        .baseUrl(BASE_URL)
+        .build()
+
+
+@GET("realestate")
+fun getProperties():
+   Deferred<List<MarsProperty>>     <<--- use "Deferred" instead of "Call"
+
+//In the viewmodel, declare the coroutine job
+private var viewModelJob = Job()
+
+//create the "Main" scope
+private val coroutineScope = CoroutineScope(
+   viewModelJob + Dispatchers.Main )
+
+// launch coroutine
+private fun getMarsRealEstateProperties() {
+   coroutineScope.launch {
+       var getPropertiesDeferred =
+          MarsApi.retrofitService.getProperties()
+       var listResult = getPropertiesDeferred.await()
+
+       try {
+           _response.value =
+              "Success: ${listResult.size} Mars properties retrieved"
+       } catch (e: Exception) {
+           _response.value = "Failure: ${e.message}"
+       }
+   }
+}
+
+//cancel the job in "onCleared"
+override fun onCleared() {
+   super.onCleared()
+   viewModelJob.cancel()
+}
+
+
+//Loading & Displaying images from internet
+//Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-apps/blob/master/MarsRealEstateGrid/app/src/main/java/com/example/android/marsrealestate/overview/OverviewViewModel.kt
+
+//Adding "Glide" to project
+implementation "com.github.bumptech.glide:glide:$version_glide"
+
+
+// loading the URL in OverviewModel.kt
+
+declare the property in viewmodel
+private val _property = MutableLiveData<MarsProperty>()
+
+val property: LiveData<MarsProperty>
+   get() = _property
+
+try {
+   var listResult = getPropertiesDeferred.await()
+   _response.value = "Success: ${listResult.size} Mars properties retrieved"
+   if (listResult.size > 0) {               //<<-- add this in launch
+       _property.value = listResult[0]
+   }
+ } catch (e: Exception) {
+    _response.value = "Failure: ${e.message}"
+ }
+
+ //In the fragment overview.xml, add the url
+ android:text="@{viewModel.property.imgSrcUrl}"
+
+//creating binding adapter & call Glide
+@BindingAdapter("imageUrl")
+fun bindImage(imgView: ImageView, imgUrl: String?) {
+    imgUrl?.let {
+        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build() // convert to Uri object
+        Glide.with(imgView.context)
+               .load(imgUri)
+               .into(imgView)
+    }
+}
+
+// In "res/layout/gridview_item.xml", bind 'imageUrl'
+app:imageUrl="@{viewModel.property.imgSrcUrl}"
+
+// In the OverviewFragment.kt, inflate GridViewItemBinding
+val binding = GridViewItemBinding.inflate(inflater)
+
+// add loading, error images & update the "BindingAdapter bindImage"
+Glide.with(imgView.context)
+                .load(imgUri)
+                .apply(RequestOptions()             // <<-- this is what it is
+                        .placeholder(R.drawable.loading_animation)
+                        .error(R.drawable.ic_broken_image))
+                .into(imgView)
+
+
+// In fragment_overview.xml add recyclerview , add "GridLayoutManager" to RecyclerView
+app:layoutManager= "androidx.recyclerview.widget.GridLayoutManager"
+
+//create a Adapter, bind the adapter to recyclerview
+// add the 'listData' to recyclerview  & create a binding adapter
+app:listData="@{viewModel.properties}"
+
+//& create a bindingAdapter
+@BindingAdapter("listData")
+fun bindRecyclerView(recyclerView: RecyclerView,
+    data: List<MarsProperty>?) {
+
+    }
+        // submitList()
+        val adapter = recyclerView.adapter as PhotoGridAdapter
+        adapter.submitList(data)
+
+    }
+}
+
+//initialize recyclerview in OverViewFragment.kt
+binding.photosGrid.adapter = PhotoGridAdapter()
+
+//Error handling for image loading
+Adding ENUM class in viewmodel
+enum class MarsApiStatus { LOADING, ERROR, DONE }
+
+in getMarsRealEstateProperties()
+try {
+    _status.value = MarsApiStatus.LOADING
+   var listResult = getPropertiesDeferred.await()   // this is await()
+   _status.value = MarsApiStatus.DONE
+   _properties.value = listResult
+} catch (e: Exception) {
+   _status.value = MarsApiStatus.ERROR
+      _properties.value = ArrayList()       // this clears the recyclerview
+}
+
+//Add BindingAdapter for status image
+@BindingAdapter("marsApiStatus")
+fun bindStatus(statusImageView: ImageView,
+          status: MarsApiStatus?) {
+   when (status) {
+      MarsApiStatus.LOADING -> {
+         statusImageView.visibility = View.VISIBLE
+         statusImageView.setImageResource(R.drawable.loading_animation)
+      }
+      MarsApiStatus.ERROR -> {
+         statusImageView.visibility = View.VISIBLE
+         statusImageView.setImageResource(R.drawable.ic_connection_error)
+      }
+      MarsApiStatus.DONE -> {
+         statusImageView.visibility = View.GONE
+      }
+   }
+
+}
+
+//Add statusImageView to the layout, fragment_overview.xml
+ app:marsApiStatus="@{viewModel.status}"
+
+
+
+
+
+
+
