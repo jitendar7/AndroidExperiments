@@ -55,4 +55,63 @@ override suspend fun doWork(): Result {
            return Result.retry()
        }
        return Result.success()
+}
+
+//Worker defines a unit of work,  and the WorkRequest defines how & when work should be run.
+//There are two concrete implementations of the 'WorkRequest' class
+- OneTimeWorkRequest ( is for on-off tasks, happens only once )
+- PeriodicWorkRequest ( for periodic work, work that repeats at intervals )
+
+Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-apps/blob/master/DevBytesWorkManager/app/src/main/java/com/example/android/devbyteviewer/DevByteApplication.kt
+
+
+//Define a periodic request in 'application',
+setupRecurringWork(){
+    val repeatingRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS)      //run once a day
+           .build()
+}
+
+//schedule a WorkRequest with WorkManager
+WorkManager.getInstance().enqueueUniquePeriodicWork(
+       RefreshDataWorker.WORK_NAME,
+       ExistingPeriodicWorkPolicy.KEEP,
+       repeatingRequest)
+
+Call this in onCreate, but with a coroutine
+
+applicationScope.launch {
+       Timber.plant(Timber.DebugTree())
+       setupRecurringWork()
+}
+
+If pending(uncompleted) work exists with the same name, the ExistingPeriodicWorkPolicy.KEEP parameter
+makes the WorkManager keep the previous periodic work and discard the new work request
+
+
+//Add Constraints, criteria when to execute a work request
+
+// This is the final functionality, this work request will run in the background as long as the app is installed,
+private fun setupRecurringWork() {
+
+       val constraints = Constraints.Builder()
+               .setRequiredNetworkType(NetworkType.UNMETERED)
+               .setRequiresBatteryNotLow(true)
+               .setRequiresCharging(true)
+               .apply {
+                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                       setRequiresDeviceIdle(true)
+                   }
+               }
+               .build()
+
+       val repeatingRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS)
+               .setConstraints(constraints)
+               .build()
+
+       Timber.d("Periodic Work request for sync is scheduled")
+       WorkManager.getInstance().enqueueUniquePeriodicWork(
+               RefreshDataWorker.WORK_NAME,
+               ExistingPeriodicWorkPolicy.KEEP,
+               repeatingRequest)
    }
+
