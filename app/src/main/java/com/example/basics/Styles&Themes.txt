@@ -27,6 +27,7 @@ Priority:
     View <- Style <- Default Style <- Theme <- TextAppearance
 
 Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-apps/blob/master/GDGFinderMaterial/app/src/main/res/values/styles.xml
+https://material.io/develop/android/theming/typography/
 
 changing the style in material theme
 <style name="TextAppearance.CustomHeadline6" parent="TextAppearance.MaterialComponents.Headline6">
@@ -34,5 +35,82 @@ changing the style in material theme
    <item name="textAppearanceHeadline6">@style/TextAppearance.CustomHeadline6</item>
 </style>
 
-
 android:textAppearance="?attr/textAppearanceHeadline6"
+
+//Theme is used to set the global theme for the entire app
+//ThemeOverlay is used to override that theme for specific views & childrens of that view
+
+
+<androidx.appcompat.widget.Toolbar
+    android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+    android:background="?attr/colorPrimaryDark"
+...
+
+supporting RTL
+android:supportsRtl="true"
+
+use 'start' & 'end' instead of 'left' & 'right'
+
+
+remove
+android:autoMirrored="true" to disable mirroring
+
+Accessibility Scanner app -> suggests improvements
+
+Use chips to filter regions
+'Chip' widget is a thin view wrapper around the ChipDrawable,
+
+Inside a HorizontalScrollView,
+<com.google.android.material.chip.ChipGroup
+    android:id="@+id/region_list"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:singleSelection="true"                  // allows only one chip in the group can be selected at a time
+    android:padding="@dimen/spacing_normal"/>
+
+
+Create a chip
+<com.google.android.material.chip.Chip
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.Chip.Choice"
+        app:chipBackgroundColor="@color/selected_highlight"
+        app:checkedIconVisible="true"           // to see the checkmark button
+        tools:checked="true"/>
+
+
+//adding chip to ChipGroup
+override fun onChanged(data: List<String>?) {
+       data ?: return
+
+       val chipGroup = binding.regionList
+       val inflator = LayoutInflater.from(chipGroup.context)
+
+       val children = data.map { regionName ->
+           val chip = inflator.inflate(R.layout.region, chipGroup, false) as Chip
+           chip.text = regionName
+           chip.tag = regionName
+           chip.setOnCheckedChangeListener { button, isChecked ->
+               viewModel.onFilterChanged(button.tag as String, isChecked)
+           }
+           chip
+       }
+       chipGroup.removeAllViews()
+
+       for (chip in children) {
+           chipGroup.addView(chip)
+       }
+   }
+
+
+//Supporting Night Mode
+<style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
+In MainActivity, onCreate() method, call
+AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+
+//Customizing the dark Theme, create folders with -night qualifier for the dark theme to use
+values-night

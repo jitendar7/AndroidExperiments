@@ -33,7 +33,6 @@ class RefreshDataWorker(appContext: context, params: WorkParameters) : Coroutine
     }
 }
 
-
 doWork() method performs work synchronously, and should return a ListenableWorker.Result object
 THe Android System gives a Worker a maximum of 10mins to finish the execution and return a
 ListenableWorker.Result object
