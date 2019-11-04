@@ -1,0 +1,38 @@
+
+Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-apps/blob/master/GDGFinderStyles/app/src/main/res/values/preloaded_fonts.xml
+
+Applying downloadable font's
+<meta-data android:name="preloaded_fonts" android:resource="@array/preloaded_fonts"/>
+
+This tells the google play services that this app wants to use downloaded fonts.
+
+
+//FAB
+To use the material components, include the below
+implementation 'com.google.android.material:material:1.1.0-alpha04'
+
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"/>
+
+
+//use Material Theme attributes
+<TextView
+       android:id="@+id/title"
+       style="?attr/textAppearanceHeadline5"
+
+?attr is a way to look up a theme attribute and apply the value of Headline5
+
+Priority:
+    View <- Style <- Default Style <- Theme <- TextAppearance
+
+Ref: https://github.com/google-developer-training/android-kotlin-fundamentals-apps/blob/master/GDGFinderMaterial/app/src/main/res/values/styles.xml
+
+changing the style in material theme
+<style name="TextAppearance.CustomHeadline6" parent="TextAppearance.MaterialComponents.Headline6">
+   <item name="android:textSize">18sp</item>
+   <item name="textAppearanceHeadline6">@style/TextAppearance.CustomHeadline6</item>
+</style>
+
+
+android:textAppearance="?attr/textAppearanceHeadline6"
