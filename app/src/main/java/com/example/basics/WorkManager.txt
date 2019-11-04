@@ -1,0 +1,58 @@
+//pre-fetching the data once in a day
+
+//WorkManager is for background work,
+"Deferrable" => work not required to run immediately
+eg: sending analytics data, syncing data
+"Guaranteed" execution => task will run even when the device restarts
+
+WorkManager will use an appropriate way either JobScheduler => API level 23+ (or)
+a combination of AlarmManager & BroadcastReceiver
+
+
+Adding WorkManager
+implementation "android.arch.work:work-runtime-ktx:$work_version"
+
+
+//Create background worker
+
+Worker, class where you define actual work to run in the background
+ extend this class, override doWork()
+
+WorkRequest, it represents a request to run the worker in background, to configure
+how & when to run the worker task, with help of Constraints such as device plugged in or WIFI connected
+
+WorkManager, schedules & runs your WorkRequest
+
+
+
+//Creating worker
+
+class RefreshDataWorker(appContext: context, params: WorkParameters) : CoroutineWorker(appContext, params){
+    override suspend fun doWork(): Result {     // this method is called on a background thread
+      return Result.success()
+    }
+}
+
+
+doWork() method performs work synchronously, and should return a ListenableWorker.Result object
+THe Android System gives a Worker a maximum of 10mins to finish the execution and return a
+ListenableWorker.Result object
+
+To create ListenableWorker.Result object, call one of the following static methods to indicate the
+completion status of the background work:
+
+Result.success() - work completed successfully
+Result.failure() - work completed with a permanent failure
+Result.retry() - work encountered a transient failure & should be retried
+
+
+override suspend fun doWork(): Result {
+       val database = getDatabase(applicationContext)
+       val repository = VideosRepository(database)
+       try {
+           repository.refreshVideos()
+       } catch (e: HttpException) {
+           return Result.retry()
+       }
+       return Result.success()
+   }
