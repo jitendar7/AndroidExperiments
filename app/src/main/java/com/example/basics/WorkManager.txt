@@ -1,3 +1,7 @@
+//Ref: https://codelabs.developers.google.com/codelabs/android-workmanager-kt/index.html?index=..%2F..ads19#3
+
+//    implementation "androidx.work:work-runtime-ktx:$versions.work"
+
 //pre-fetching the data once in a day
 
 //WorkManager is for background work,
@@ -113,4 +117,41 @@ private fun setupRecurringWork() {
                ExistingPeriodicWorkPolicy.KEEP,
                repeatingRequest)
    }
+
+
+// Steps
+1. Create a worker, by extending Worker & overriding doWork
+2. Get WorkManager instance using WorkManager.getInstance(application)
+3. Enqueue the WorkRequest in WorkManager (OneTimeWorkRequest / PeriodicWorkRequest )
+   workManager.enqueue(OneTimeWorkRequest.from(BlurWorker::class.java))
+
+
+Create Data input object
+'Data' objects are lightweight containers for key/value pairs, meant to store small amount of data
+that is passed in & out of WorkRequest
+
+eg:
+val builder = Data.Builder()
+imageUri?.let {
+    builder.putString(KEY_IMAGE_URI,imageUri.toString())
+}
+return builder.build()
+
+
+pass the DataObject to worker request
+val blurRequest = OneTimeWorkRequestBuilder<BlurWorker>()
+            .setInputData(createInputDataForUri())
+            .build()
+
+workManager.enqueue(blurRequest)
+
+
+In the doWork(),
+
+val resourceUri = inputData.getString(KEY_IMAGE_URI)
+
+return the output Data
+val outputData = workDataOf(KEY_IMAGE_URI to outputUri.toString())
+Result.success(outputData)
+
 

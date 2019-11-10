@@ -1,3 +1,5 @@
+Ref: https://codelabs.developers.google.com/codelabs/android-room-with-a-view-kotlin/index.html?index=..%2F..ads19#6
+
 //Entity
   It represents an object or concept, and its properties, to store in the database
   An Entity class defines a 'Table'

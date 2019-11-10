@@ -9,7 +9,7 @@ fun launchDataLoad(block: suspend() -> Unit): Job {
         } catch(error: TitleRefreshError) {
             _snackBar.value = error.message
         } finally {
-            _spnner.value = false
+            _spinner.value = false
         }
     }
 }
