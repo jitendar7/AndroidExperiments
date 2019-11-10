@@ -1,0 +1,47 @@
+// Transformations.map(_livedata) { value }
+
+LiveData is lifecycle aware observable so you need to specify what lifecycle owner to use.
+binding.lifecycleOwner = this
+
+// obtain ViewModel from ViewModelProviders.of
+    private val viewModel by lazy { ViewModelProviders.of(this).get(SimpleViewModel::class.java) }
+
+
+override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val binding : PlainActivityBinding =
+            DataBindingUtil.setContentView(this, R.layout.plain_activity)
+
+        binding.viewmodel = viewModel
+}
+
+
+//Ref: https://android.googlesource.com/platform/frameworks/data-binding/+/master/extensions/baseAdapters/src/main/java/android/databinding/adapters/
+// Binding Adapters to create custom attributes
+
+@BindingAdapter("app:hideIfZero")
+    fun hideIfZero(view: View, number: Int) {
+        view.visibility = if (number == 0) View.GONE else View.VISIBLE
+    }
+
+
+<ProgressBar
+            android:id="@+id/progressBar"
+            app:hideIfZero="@{viewmodel.likes}"
+
+            ... .
+
+// multiple adapter
+@BindingAdapter(value = ["app:progressScaled", "android:max"], requireAll = true)
+fun setProgress(progressBar: ProgressBar, likes: Int, max: Int) {
+    progressBar.progress = (likes * max / 5).coerceAtMost(max)
+}
+
+
+<ProgressBar
+                android:id="@+id/progressBar"
+                app:hideIfZero="@{viewmodel.likes}"
+                app:progressScaled="@{viewmodel.likes}"
+                android:max="@{100}"
+                ....
