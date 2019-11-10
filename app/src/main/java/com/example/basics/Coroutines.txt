@@ -1,0 +1,44 @@
+Ref: https://codelabs.developers.google.com/codelabs/kotlin-coroutines
+// using coroutines in higher order functions
+
+fun launchDataLoad(block: suspend() -> Unit): Job {
+    return viewModelScope.launch {
+        try{
+            _spinner.value = true
+            block()
+        } catch(error: TitleRefreshError) {
+            _snackBar.value = error.message
+        } finally {
+            _spnner.value = false
+        }
+    }
+}
+
+
+fun refreshTitle() {
+    launchDataLoad {
+        repository.refreshTitle()
+    }
+}
+
+
+//Testing coroutines with WorkManager
+
+
+In src:
+class RefreshMainDataWork(context: Context, params: WorkerParameters) :
+        CoroutineWorker(context, params) {
+
+    override suspend fun doWork(): Result {
+
+     ... .
+    }
+
+
+In test:
+val worker = TestListenableWorkerBuilder<RefreshMainDataWork>(context).build()
+val result = worker.startWork().get()   //start work synchronously
+
+assertThat(result, `is`(Result.success()))
+
+
