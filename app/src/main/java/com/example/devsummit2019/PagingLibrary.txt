@@ -1,0 +1,56 @@
+// PagingLibrary makes it easier to load data gradually and gracefully
+// Ref: https://github.com/googlecodelabs/android-paging/blob/master/app/src/main/java/com/example/android/codelabs/paging/api/GithubService.kt
+
+Architecture:
+
+UI                  =>          ViewModel =>                Repository =>                           Data Layer
+(PagedListAdapter)              LiveData<PagedList>           LivePagedListBuilder
+  PagedList                                                     LiveData<PagedList>  (build)                                        create
+                                                                                                    load more   Data Source -> DataSource.Factory
+                                                                                                                   |
+                                                                                                                BoundaryCallback <- getData from cloud
+
+PagedList -> a collection that loads data in pages, asynchronously
+             It can be used to load data from sources that we define
+
+DataSource & DataSource.Factory -> a DataSource is the base class for loading snapshots of data into PagedList
+
+LivePagedListBuilder -> builds a LiveData<PagedList> based on DataSource.Factory and a PagedList.Config
+
+BoundaryCallback -> signals when a PagedList has reached the end of available data
+
+PagedListAdapter -> A RecyclerView.Adapter that presents paged data from PagedLists in a RecyclerView.
+PagedListAdapter listens to PagedList loading callbacks as pages are loaded, and uses DiffUtil to compute fine-grained updates as new
+PagedLists are loaded
+
+
+
+
+//Ref: https://codelabs.developers.google.com/codelabs/android-paging/index.html?index=..%2F..ads19#5
+
+// Get data source factory from the local cache
+    val dataSourceFactory = cache.reposByName(query)
+
+// Get the paged list
+    val data = LivePagedListBuilder(dataSourceFactory, DATABASE_PAGE_SIZE).build()
+
+//class ReposAdapter : PagedListAdapter<Repo, RecyclerView.ViewHolder>(REPO_COMPARATOR)
+
+
+//class RepoBoundaryCallback(
+          private val query: String,
+          private val service: GithubService,
+          private val cache: GithubLocalCache
+  ) : PagedList.BoundaryCallback<Repo>() {
+      override fun onZeroItemsLoaded() {
+      }
+
+      override fun onItemAtEndLoaded(itemAtEnd: Repo) {
+      }
+  }
+
+
+// // Get the paged list
+      val data = LivePagedListBuilder(dataSourceFactory, DATABASE_PAGE_SIZE)
+               .setBoundaryCallback(boundaryCallback)       // setting boundary callback
+               .build()

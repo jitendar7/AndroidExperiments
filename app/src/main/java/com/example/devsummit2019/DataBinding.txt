@@ -23,13 +23,11 @@ override fun onCreate(savedInstanceState: Bundle?) {
 @BindingAdapter("app:hideIfZero")
     fun hideIfZero(view: View, number: Int) {
         view.visibility = if (number == 0) View.GONE else View.VISIBLE
-    }
-
+}
 
 <ProgressBar
             android:id="@+id/progressBar"
             app:hideIfZero="@{viewmodel.likes}"
-
             ... .
 
 // multiple adapter
@@ -37,7 +35,6 @@ override fun onCreate(savedInstanceState: Bundle?) {
 fun setProgress(progressBar: ProgressBar, likes: Int, max: Int) {
     progressBar.progress = (likes * max / 5).coerceAtMost(max)
 }
-
 
 <ProgressBar
                 android:id="@+id/progressBar"
