@@ -1,0 +1,81 @@
+//Ref: https://github.com/googlecodelabs/android-direct-share
+//Direct Share works with concept of sharing of shortcuts, using ShortcutManager API
+
+Step 1: Declare the shortcuts in xml, like app/src/main/res/xml/shortcuts.xml
+
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <share-target android:targetClass="com.example.android.directshare.SendMessageActivity">
+        <data android:mimeType="text/plain" />
+        <category android:name="com.example.android.directshare.category.TEXT_SHARE_TARGET" />
+    </share-target>
+</shortcuts>
+
+Step 2: declare shortcuts.xml in Main Activity as meta-data
+
+<activity
+    android:name=".MainActivity"
+    android:label="@string/app_name">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+
+    <!-- Reference resource file where the app's shortcuts are defined -->
+    <meta-data
+        android:name="android.app.shortcuts"
+        android:resource="@xml/shortcuts" />
+
+</activity>
+
+
+Step 3: Publish dynamic shortcuts  ShortcutManagerAPI ( ShortcutManagerCompat )
+
+implementation "androidx.core:core:${versions.androidxCore}"
+
+In MainActivity
+sharingShortcutsManager = SharingShortcutsManager().also {
+        it.pushDirectShareTargets(this)
+}
+
+Step 4: Create categories/list of categories that match your share-target definition
+Create a shortcut using the ShorcutInfoCompat.Builder
+
+val staticLauncherShortcutIntent = Intent(Intent.ACTION_DEFAULT)
+
+
+ShortcutInfoCompat.Builder(context, Integer.toString(id))
+        .setShortLabel(contact.name)
+        // Icon that will be displayed in the share target
+        .setIcon(IconCompat.createWithResource(context, contact.icon))
+        .setIntent(staticLauncherShortcutIntent)
+        .setLongLived(true)
+        .setCategories(contactCategories)
+        // Person objects are used to give better suggestions
+        .setPerson(
+            Person.Builder()
+                    .setName(contact.name)
+                    .build()
+        )
+        .build()
+
+Finally publish the shorcuts
+        ShortcutManagerCompat.addDynamicShortcuts(context, shortcuts)
+
+Receiving Intent
+
+Backward compatible
+    <meta-data
+        android:name="android.service.chooser.chooser_target_service"
+        android:value="androidx.sharetarget.ChooserTargetServiceCompat" />
+
+
+This is to preview it
+sharingIntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.send_intent_title))
+
+Intent.setClipData(contentUri)
+
+Intent.FLAG_GRANT_READ_URI_PERMISSION
+
+
+
+
