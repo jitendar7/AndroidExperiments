@@ -154,4 +154,40 @@ return the output Data
 val outputData = workDataOf(KEY_IMAGE_URI to outputUri.toString())
 Result.success(outputData)
 
+Ref: https://codelabs.developers.google.com/codelabs/android-workmanager-kt/index.html?index=..%2F..ads19#5
+
+Chaining the work:
+WorkManager allows to create a separate WorkerRequest's that run in order or parallel
+
+var continuation = workManager.beginWith(OneTimeWorkRequest.from(CleanupWorker::class.java))
+
+//Add WorkRequest to blur the image
+val blurRequest = OneTimeWorkRequest.Builder(BlurWorker::class.java)
+                  .setInputData(createInputDataForUri())
+                  .build()
+
+continuation = continuation.then(blurRequest)
+
+//Add WorkRequest to save the image to the filesystem
+val save = OneTimeWorkRequest.Builder(SaveImageToFileWorker::class.java).build()
+
+continuation = continuation.then(save)
+
+//Actually start the work
+continuation.enqueu()
+
+//Blurring number of times
+// Add WorkRequests to blur the image the number of times requested
+    for (i in 0 until blurLevel) {
+        val blurBuilder = OneTimeWorkRequestBuilder<BlurWorker>()
+
+        // Input the Uri if this is the first blur operation
+        // After the first blur operation the input will be the output of previous
+        // blur operations.
+        if (i == 0) {
+            blurBuilder.setInputData(createInputDataForUri())
+        }
+
+        continuation = continuation.then(blurBuilder.build())
+    }
 
