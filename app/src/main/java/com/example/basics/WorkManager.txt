@@ -191,3 +191,28 @@ continuation.enqueu()
         continuation = continuation.then(blurBuilder.build())
     }
 
+
+//ensure unique work
+( use, .beginUniqueWork, 'REPLACE' -> if the user decides to stop the blur of first image & start the second one )
+var continuation = workManager
+        .beginUniqueWork(
+                IMAGE_MANIPULATION_WORK_NAME,
+                ExistingWorkPolicy.REPLACE,
+                OneTimeWorkRequest.from(CleanupWorker::class.java)
+        )
+
+//We can get the status of any work request by getting a LiveData that holds a 'WorkInfo'
+// whether the work is BLOCKED, CANCELLED, ENQUEUED, FAILED, RUNNING, or SUCCEDED
+
+put a TAG to a work request
+'getWorkInfosByTagLiveData()' will give the WorkInfo LiveData<List<WorkInfos>>
+
+WorkManager, cancel the work by id, tag & by unique chain name
+    workManager.cancelUniqueWork(IMAGE_MANIPULATION_WORK_NAME)
+
+
+Adding constrains
+// Create charging constraint
+val constraints = Constraints.Builder()
+        .setRequiresCharging(true)
+        .build()
