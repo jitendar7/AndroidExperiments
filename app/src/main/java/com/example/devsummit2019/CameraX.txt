@@ -1,0 +1,17 @@
+min api level for CameraX is Api - 21
+
+
+implementation "androidx.camera:camera-core:${camerax_version}"
+implementation "androidx.camera:camera-camera2:${camerax_version}"
+
+
+compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
+
+
+<uses-permission android:name="android.permission.CAMERA" />
+
+requesting permissions at runtime
+private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)

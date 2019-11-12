@@ -1,0 +1,18 @@
+// New location permission
+ACCESS_BACKGROUND_LOCATION
+
+Adding foreground service type
+<service
+   android:name="com.example.android.whileinuselocation.ForegroundOnlyLocationService"
+   android:enabled="true"
+   android:exported="false"
+   android:foregroundServiceType="location" />
+
+Adding foreground & background location
+
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+Ref: https://codelabs.developers.google.com/codelabs/while-in-use-location/index.html?index=..%2F..ads19#3
+
+Check for the self permission & add to permission request
+
