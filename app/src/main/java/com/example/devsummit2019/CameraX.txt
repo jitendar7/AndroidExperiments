@@ -1,3 +1,4 @@
+//Ref: https://codelabs.developers.google.com/codelabs/camerax-getting-started/index.html?index=..%2F..ads19#6
 min api level for CameraX is Api - 21
 
 
@@ -15,3 +16,90 @@ compileOptions {
 
 requesting permissions at runtime
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+
+Implement view finder
+// set a preview configuration
+val previewConfig = PreviewConfig.Builder().apply {
+    setTargetResolution(Size(640, 480))
+}.build()
+
+//Build the viewfinder use case
+val preview = Preview(previewConfig)
+
+// Every time the viewfinder is updated, recompute layout
+    preview.setOnPreviewOutputUpdateListener {
+
+        // To update the SurfaceTexture, we have to remove it and re-add it
+        val parent = viewFinder.parent as ViewGroup
+        parent.removeView(viewFinder)
+        parent.addView(viewFinder, 0)
+
+        viewFinder.surfaceTexture = it.surfaceTexture
+        updateTransform()
+    }
+
+// Bind use cases to lifecycle
+CameraX.bindToLifecycle(this, preview)
+
+private fun updateTransform() {
+    val matrix = Matrix()
+
+    // Compute the center of the view finder
+    val centerX = viewFinder.width / 2f
+    val centerY = viewFinder.height / 2f
+
+    // Correct preview output to account for display rotation
+    val rotationDegrees = when(viewFinder.display.rotation) {
+        Surface.ROTATION_0 -> 0
+        Surface.ROTATION_90 -> 90
+        Surface.ROTATION_180 -> 180
+        Surface.ROTATION_270 -> 270
+        else -> return
+    }
+    matrix.postRotate(-rotationDegrees.toFloat(), centerX, centerY)
+
+    // Finally, apply transformations to our TextureView
+    viewFinder.setTransform(matrix)
+}
+
+
+//create image capture configuration
+val imageCaptureConfig = ImageCaptureConfig.Builder()
+    .apply {
+        setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
+    }.build()
+
+
+val imageCapture = ImageCapture(imageCaptureConfig)
+
+imageCapture.takePicture(file, executor,
+            object : ImageCapture.OnImageSavedListener {
+    //implement
+    onError()
+    onImageSaved(file: File)
+}
+
+update binding , CameraX.bindToLifecycle(this, preview, imageCapture)
+
+
+//Adding image analysis use-case
+implement ImageAnalysis.Analyzer,
+
+     private fun ByteBuffer.toByteArray(): ByteArray {
+override fun analyze(image: ImageProxy, rotationDegrees: Int) {
+
+
+next setup image analysis pipeline
+val analyzerConfig = ImageAnalysisConfig.Builder().apply {
+        setImageReaderMode(
+            ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
+    }.build()
+
+// Build the image analysis use case and instantiate our analyzer
+    val analyzerUseCase = ImageAnalysis(analyzerConfig).apply {
+        setAnalyzer(executor, LuminosityAnalyzer())
+    }
+
+add the new usecase
+CameraX.bindToLifecycle(
+    this, preview, imageCapture, analyzerUseCase)
