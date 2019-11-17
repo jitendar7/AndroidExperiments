@@ -1,0 +1,77 @@
+Ref: https://codelabs.developers.google.com/codelabs/android-navigation/index.html?index=..%2F..ads19#1
+Ref: https://developer.android.com/guide/navigation
+
+Navigation Graph: (xml) , navigation related info in one location ( all possible paths a user might take)
+
+NavHostFragment: (layout xml ) , special widget added to layout, it displays different destinations from navigation graph
+
+NavController: (kotlin), object that keeps track of the current position within the navigation graph,
+It orchestrates swapping destination content in the NavHostFragment
+
+
+NavOptions => used for transition
+
+val options = navOptions {
+    anim {
+        enter = R.anim.slide_in_right
+        exit = R.anim.slide_out_left
+        popEnter = R.anim.slide_in_left
+        popExit = R.anim.slide_out_right
+    }
+}
+
+view.findViewById<Button>(R.id.navigate_destination_button)?.setOnClickListener {
+    findNavController().navigate(R.id.flow_step_one_dest, null, options)
+}
+
+
+NavigationComponents include a NavigationUI & navigation-ui-ktx
+NavigationUI -> has static methods that associate menu items with navigation destinations,
+navigation-ui-ktx , extension functions that do the same
+
+
+Deeplink to a destination
+
+NavDeepLinkBuilder class to construct a PendingIntent, that will take the user to a specific destination
+
+val args = Bundle()
+args.putString("myarg", "From Widget")
+
+val pendingIntent = NavDeepLinkBuilder(context)
+        .setGraph(R.navigation.mobile_navigation)
+        .setDestination(R.id.deeplink_dest)
+        .setArguments(args)
+        .createPendingIntent()
+
+remoteViews.setOnClickPendingIntent(R.id.deep_link_button, pendingIntent)
+
+
+//associating a web link with a destination
+<deepLink>
+
+
+mobile_navigation.xml
+
+<fragment
+    android:id="@+id/deeplink_dest"
+    android:name="com.example.android.codelabs.navigation.DeepLinkFragment"
+    android:label="@string/deeplink"
+    tools:layout="@layout/deeplink_fragment">
+
+    <argument
+        android:name="myarg"
+        android:defaultValue="Android!"/>
+
+    <deepLink app:uri="www.example.com/{myarg}" />
+</fragment>
+
+in AndroidManifest.xml
+<activity android:name=".MainActivity">
+    <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.LAUNCHER" />
+    </intent-filter>
+
+    <nav-graph android:value="@navigation/mobile_navigation" />         // added this
+</activity>
