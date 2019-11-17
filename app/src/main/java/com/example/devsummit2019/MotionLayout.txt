@@ -43,3 +43,62 @@ inside that define transition & constrain set
    </ConstraintSet>
 </MotionScene>
 
+
+//enabling debugging for motion layout
+       app:motionDebug="SHOW_PATH" >
+
+
+Modifying a path
+'KeyPosition'
+
+KeyFrameSet => is a child of a Transaction, and it is set to all KeyFrames, such as KeyPosition
+
+<KeyFrameSet>
+   <KeyPosition
+           app:framePosition="50"
+           app:motionTarget="@id/moon"
+           app:keyPositionType="parentRelative"
+           app:percentY="0.5"
+   />
+</KeyFrameSet>
+
+
+app:KeyPositionType -> 'determines how MotionLayout will modify the path according to percentX or percentY'
+'parentRelative', 'pathRelative', 'deltaRelative'
+
+Adding custom attributes to keyposition
+
+<KeyAttribute
+       app:framePosition="0"
+       app:motionTarget="@id/moon">
+   <CustomAttribute
+           app:attributeName="colorFilter"
+           app:customColorValue="#FFFFFF"
+   />
+</KeyAttribute>
+
+
+Adding animation on onSwipe, instead of click
+<OnSwipe
+       app:touchAnchorId="@id/moon"
+       app:touchAnchorSide="bottom"
+       app:dragDirection="dragRight"        //but you can tell MotionLayout which direction to track
+/>
+
+MotionLayout with CoordinatorLayout,
+add these properties to MotionLayout
+android:minHeight="80dp"
+app:layout_scrollFlags="scroll|enterAlways|snap|exitUntilCollapsed"
+
+
+Adding listener to appBarLayout, and changing the motion layout progress
+
+val appBarLayout: AppBarLayout = findViewById(R.id.appbar_layout)
+val motionLayout: MotionLayout = findViewById(R.id.motion_layout)
+
+val listener = AppBarLayout.OnOffsetChangedListener { unused, verticalOffset ->
+   val seekPosition = -verticalOffset / appBarLayout.totalScrollRange.toFloat()
+   motionLayout.progress = seekPosition
+}
+
+appBarLayout.addOnOffsetChangedListener(listener)
