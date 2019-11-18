@@ -1,0 +1,11 @@
+Adding dagger dependencies
+
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+dependencies {
+    def dagger_version = "2.25.2"
+    implementation "com.google.dagger:dagger:$dagger_version"   => this contains all the annotations you can use in app
+    kapt "com.google.dagger:dagger-compiler:$dagger_version" => is the annotation processor that will generate the code for us
+}
+
