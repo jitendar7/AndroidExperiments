@@ -1,0 +1,63 @@
+//Dagger creates a graph of objects that it can reference to find the way to provide
+an instance of a class.
+
+@Inject //lets the dagger know how to create instances of this object
+class UserRepository @Inject constructor(
+    private val localDataSource: UserLocalDataSource,
+    private val remoteDataSource: UserRemoteDataSource
+){ ... }
+
+
+class UserLocalDataSource @Inject constructor(){
+...
+}
+
+class UserRemoteDataSource @Inject constructor(){
+...
+}
+
+//To create a graph, you need to add @Component to interface
+@Component
+interface ApplicationGraph{
+
+    // the return type of functions inside the component interface is what can be provided from the
+    // container
+    fun repository(): UserRepository
+}
+
+
+//You can use it as follows
+val applicationGraph: ApplicationGraph = DaggerApplicationGraph.create()
+//grab the instance of repository using
+val userRepository:UserRepository = applicationGraph.repository()
+
+Dagger creates new instance, everytime it's requested
+
+// scoping with dagger
+
+
+@Singleton
+@Component
+interface ApplicationGraph{
+    fun repository(): UserRepository
+}
+
+@Singleton
+class UserRepository @Inject constuctor(
+private val localDataSource: UserLocalDataSource,
+private val remoteDataSource: UserRemoteDataSource)
+{ ... }
+
+
+custom scope annotation
+
+
+@Scope
+@MustBeDocumented
+@Retention(value = AnnotationRetention.RUNTIME)
+annotation class MyCustomScope
+
+
+You can use the same for instead of Singleton
+
+
