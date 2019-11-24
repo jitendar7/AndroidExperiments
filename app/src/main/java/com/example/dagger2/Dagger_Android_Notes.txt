@@ -1,0 +1,162 @@
+@Inject -> constructor injection wherever possible
+@Binds -> tell Dagger which implementation an interface should have
+@Provides -> tell Dagger how to provide classes that your project doesn't own
+
+
+Ref: https://developer.android.com/training/dependency-injection/dagger-android
+
+Name the scope based on the lifetime of annotation like @AnnotationScope, @ActivityScope, @LoggedUserScope
+
+//Add dependencies
+
+Ref: https://github.com/google/dagger/releases
+
+'kapt' uses the java compiler to run annotation processors
+
+dependencies{
+    implementation 'com.google.dagger:dagger:2.x'
+    kapt 'com.google.dagger:dagger-compiler:2.x'
+}
+
+
+//Application component
+@Component
+interface ApplicationComponent{
+    fun inject(activity: LoginActivity)
+}
+
+//appComponent lives in application class to share its lifecycle
+class MyApplication: Application(){
+    //Reference to the application graph
+    val appComponent = DaggerApplicationComponent.create()
+}
+
+//Within Activity
+class LoginActivity: Activity(){
+    @Inject lateinit var loginViewModel: LoginViewModel
+
+    override fun onCreate(savedInstantState: Bundle?){
+        (applicationContext as MyApplication).appComponent.inject(this)
+
+        super.onCreate(savedInstanceState)
+    }
+}
+
+//within viewmodel
+class LoginViewModel @Inject constructor(
+    private val userRepository: UserRepository) {
+    ... }
+
+
+// repository & data source
+class UserRepository @Inject constructor(
+    private val localDataSource: UserLocalDataSource,
+    private val remoteDataSource: UserRemoteDataSource){
+    .. }
+
+class UserLocalDataSource @Inject constructor(){
+.. }
+class UserRemoteDataSource @Inject constructor(){
+.. }
+
+
+
+@Module
+class NetworkModule{
+
+    @Provides   //tells Dagger how to create instance of the type that this function returns
+    fun provideLoginRetrofitService(): LoginRetrofitService {
+        //Whenever Dagger needs to provide an instance of type LoginRetrofitService,
+        // this code is run
+        return Retrofit.Builder()
+                .baseUrl("https://example.com")
+                .build()
+                .create(LoginService::class.java)
+    }
+}
+
+
+//For the Dagger to know about this module, you need to add it in application component
+@Component(modules=[NetworkModule::class])
+interface ApplicationComponent{
+    ...
+}
+
+
+Scoping:
+
+@Singleton
+@Component(modules = [NetworkModule::class])
+interface ApplicationComponent {
+    fun inject(activity: LoginActivity)
+}
+
+@Singleton
+class UserRepository @Inject constructor(
+    private val localDataSource: UserLocalDataSource,
+    private val remoteDataSource: UserRemoteDataSource)
+    {.. }
+
+@Module
+class NetworkModule {
+    @Singleton
+    @Provides
+    fun provideLoginRetrofitService(): LoginRetrofitService { .. }
+}
+
+//Modules that use scope annotation can only be used in components that are annotated with the same scope
+//Add scope annotations in classes when using constructor injection(with @inject) and add them in
+//@Provides methods when using Dagger modules
+
+//Login Flow with single activity & multiple fragments
+// => you should re-use the same instance of LoginViewModel in all fragments, we cannot use
+//    @Singleton in LoginViewModel ( eg.. if the user logouts and logins , same instance cannot be used )
+
+
+//To Scope LoginViewModel to LoginActivity, we need to create a new component
+
+// @SubComponent annotation informs Dagger this interface is a Dagger SubComponent, that inherits and extend object
+// graph of a parent component.
+
+@SubComponent
+interface LoginComponent{
+    fun inject(activity: LoginActivity)
+}
+
+
+//We must also define a subcomponent factory inside LoginComponent so that
+// ApplicationComponent knows when to create instances of LoginComponent
+
+@SubComponent
+interface LoginComponent{
+
+    //Factory
+    @SubComponent.Factory
+    interface Factory{
+        fun create(): LoginComponent
+    }
+
+    fun inject(loginActivity: LoginActivity)
+}
+
+// To tell the dagger that LoginComponent is a subcomponent of ApplicationComponent, you have to indicate by
+
+1. Create a new module
+
+@Module(subcomponents = LoginComponent::class)
+class SubComponentsModule{
+}
+
+2. Adding new module to ApplicationComponent
+
+    // remove inject method from ApplicationComponent
+    & expose the factory
+
+@Singleton
+@Component(modules = [NetworkModule::class, SubComponentsModule::class])
+interface ApplicationComponent {
+    fun loginComponent(): LoginComponent.Factory
+}
+
+
+
