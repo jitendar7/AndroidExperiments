@@ -159,4 +159,28 @@ interface ApplicationComponent {
 }
 
 
+//Reference to login component in activity
+class LoginActivity: Activity() {
+    //Refer
+    lateinit var loginComponent: LoginComponent
+
+    @Inject lateinit var loginViewModel: LoginViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?){
+        loginComponent = (applicationContext as MyDaggerApplication).appComponent
+                                .loginComponent().create()
+
+        //Make Dagger instance @Inject fields in LoginActivity
+        loginComponent.inject(this)
+
+        //Now loginViewModel is available
+
+        super.onCreate(savedInstanceState)
+    }
+
+}
+
+
+
+
 
