@@ -158,7 +158,6 @@ interface ApplicationComponent {
     fun loginComponent(): LoginComponent.Factory
 }
 
-
 //Reference to login component in activity
 class LoginActivity: Activity() {
     //Refer
@@ -180,7 +179,66 @@ class LoginActivity: Activity() {
 
 }
 
+// The LoginComponent, must always provide same instance LoginViewModel, each time it's requested
+// Create a custom annotation & assign to both LoginComponent & LoginViewModel
 
+
+@Scope
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ActivityScope(){}
+
+@ActivityScope
+@SubComponent
+public interface LoginComponent{
+...
+}
+
+//unique instance of viewModel
+@ActivityScope
+public class LoginViewModel{
+    private final UserRepository userRepository;
+
+    @Inject
+    public LoginViewModel(UserRepository userRepository){
+     this.repository = userRepository
+    }
+}
+
+//if you had fragments that need LoginViewModel, both of them are provided with the same instance
+
+@ActivityScope
+@SubComponent
+public interface LoginComponent{
+    @SubComponent.Factory
+    interface Factory{
+        LoginComponent.create();
+    }
+
+    // All LoginActivity, LoginUsernameFragment and LoginPasswordFragment
+    // request injection from LoginComponent. The graph needs to satisfy
+    // all the dependencies of the fields those classes are injecting
+    void inject(LoginActivity loginActivity);
+    void inject(LoginUsernameFragment loginUsernameFragment);
+    void inject(LoginPasswordFragment loginPasswordFragment);
+
+}
+
+
+public class LoginUsernameFragment extends Fragment {
+
+    @Inject
+    LoginViewModel loginViewModel
+
+    @Override
+    public void onAttach(Context context){
+        super.onAttach(context)
+
+        //Obtaining the login graph from LoginActivity and instantiate
+        // the @Inject fields with objects from the graph
+        ((LoginActivity)getActivity()).loginComponent.inject(this)
+    }
+
+}
 
 
 
