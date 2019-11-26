@@ -56,9 +56,10 @@ class UserRepository @Inject constructor(
 
 class UserLocalDataSource @Inject constructor(){
 .. }
-class UserRemoteDataSource @Inject constructor(){
-.. }
-
+class UserRemoteDataSource @Inject constructor(
+    private val loginService: LoginRetrofitService){
+..
+}
 
 
 @Module
@@ -196,7 +197,7 @@ public interface LoginComponent{
 //unique instance of viewModel
 @ActivityScope
 public class LoginViewModel{
-    private final UserRepository userRepository;
+    private final UserRepository repository;
 
     @Inject
     public LoginViewModel(UserRepository userRepository){
@@ -239,6 +240,9 @@ public class LoginUsernameFragment extends Fragment {
     }
 
 }
+
+// use scoping to minimum, the object is in memory as long as the component is in memory
+// when Dagger provides the object, it uses 'DoubleCheck' locking instead of factory-type provider
 
 
 
