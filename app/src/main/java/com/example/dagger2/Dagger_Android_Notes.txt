@@ -244,5 +244,16 @@ public class LoginUsernameFragment extends Fragment {
 // use scoping to minimum, the object is in memory as long as the component is in memory
 // when Dagger provides the object, it uses 'DoubleCheck' locking instead of factory-type provider
 
+//Testing
+
+- Unit Tests
+Pass in fake objects/repositories/ .. for testing
+
+- Integration Tests
+extend the ApplicationComponent interface, create a fake network module, .. .
+use the TestApplication component
+
+Good practice is not to duplicate declaration of modules within another modules
+
 
 
