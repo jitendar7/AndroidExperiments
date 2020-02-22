@@ -1,5 +1,5 @@
 // Transformations.map(_livedata) { value }
-
+// Ref: https://codelabs.developers.google.com/codelabs/android-databinding/#7
 LiveData is lifecycle aware observable so you need to specify what lifecycle owner to use.
 binding.lifecycleOwner = this
 
